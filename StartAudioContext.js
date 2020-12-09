@@ -156,34 +156,35 @@
 	 *                       is started.
 	 */
 	function StartAudioContext(context, elements, callback){
+		context.resume().then(() => {
+			//the promise is invoked when the AudioContext is started
+			var promise = new Promise(function(success) {
+				onStarted(context, success)
+			})
 
-		//the promise is invoked when the AudioContext is started
-		var promise = new Promise(function(success) {
-			onStarted(context, success)
-		})
+			// The TapListeners bound to the elements
+			var tapListeners = []
 
-		// The TapListeners bound to the elements
-		var tapListeners = []
-
-		// add all the tap listeners
-		if (!elements){
-			elements = document.body
-		}
-		bindTapListener(elements, tapListeners, context)
-
-		//dispose all these tap listeners when the context is started
-		promise.then(function(){
-			for (var i = 0; i < tapListeners.length; i++){
-				tapListeners[i].dispose()
+			// add all the tap listeners
+			if (!elements){
+				elements = document.body
 			}
-			tapListeners = null
+			bindTapListener(elements, tapListeners, context)
 
-			if (callback){
-				callback()
-			}
-		})
+			//dispose all these tap listeners when the context is started
+			promise.then(function(){
+				for (var i = 0; i < tapListeners.length; i++){
+					tapListeners[i].dispose()
+				}
+				tapListeners = null
 
-		return promise
+				if (callback){
+					callback()
+				}
+			})
+
+			return promise
+		})		
 	}
 
 	return StartAudioContext
